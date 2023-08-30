@@ -1,4 +1,6 @@
-# Dagpenger-SERVICENAME
+# dp-audit-logger
+
+Har ansvar å ta imot aktivitetslogger fra (https://github.com/navikt/dp-aktivitetslogg) og sende aktivitet som auditlogg-verdige som ArcSight Common Event Format (CEF)
 
 ## Komme i gang
 

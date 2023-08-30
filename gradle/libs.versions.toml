@@ -4,6 +4,7 @@ jackson = "2.15"
 kotlin = "1.9.10"
 ktor = "2.3.3"
 ktlint = "0.50.0"
+kotest = "5.6.2"
 
 
 [libraries]
@@ -17,6 +18,10 @@ ktor-client-jackson = { group = "io.ktor", name = "ktor-client-jackson", version
 ktor-client-logging-jvm = { group = "io.ktor", name = "ktor-client-logging-jvm", version.ref = "ktor" }
 ktor-server = { group = "io.ktor", name = "ktor-server", version.ref = "ktor" }
 urnlib = { group = "de.slub-dresden", name = "urnlib", version = "2.0.1" }
+
+rapids-and-rivers = { group = "com.github.navikt", name = "rapids-and-rivers", version = "2023080113411690890096.310ed8e5ed93" }
+kotlin-logging = { group = "io.github.microutils", name = "kotlin-logging", version = "3.0.5" }
+
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

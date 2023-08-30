@@ -11,7 +11,7 @@ RUN $JAVA_HOME/bin/jlink \
 
 # Runtime
 FROM debian:buster-slim
-ENV TZ="Europe/Oslo"
+ENV LANG='nb_NO.UTF-8' LANGUAGE='nb_NO:nb' LC_ALL='nb:NO.UTF-8' TZ="Europe/Oslo"
 ENV JAVA_HOME=/opt/java/openjdk
 ENV PATH "${JAVA_HOME}/bin:${PATH}"
 COPY --from=jre-build /javaruntime $JAVA_HOME
@@ -19,4 +19,4 @@ COPY --from=jre-build /javaruntime $JAVA_HOME
 COPY build/install/* /
 
 USER nobody
-CMD ["dp-service-template"]
+CMD ["dp-audit-logger"]
