@@ -1,19 +1,14 @@
 # dp-audit-logger
 
-Har ansvar å ta imot aktivitetslogger fra (https://github.com/navikt/dp-aktivitetslogg) og sende aktivitet som auditlogg-verdige som ArcSight Common Event Format (CEF)
+Har ansvar å ta i mot [aktivitetslogger](https://github.com/navikt/dp-aktivitetslogg/tree/main/aktivitetslogg) fra og
+sende "audit" aktivitet som ArcSight Common Event Format (CEF) i henhold
+til https://sikkerhet.nav.no/docs/sikker-utvikling/auditlogging
 
 ## Komme i gang
 
 Gradle brukes som byggverktøy og er bundlet inn.
 
 `./gradlew build`
-
-## Sjekkliste for ny app
-1. Bytt navn på app i nais.yaml, settings.gradle og dockerfile.
-2. Fjern kommentering i deploy.yaml (står beskrevet hva man skal kommentere ut)
-3. Legge til deploysecreten i repoet.
-
----
 
 # Henvendelser
 
