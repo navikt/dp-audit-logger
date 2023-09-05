@@ -1,4 +1,4 @@
-package no.nav.dagpenger.audit.logger
+package no.nav.dagpenger.audit.logger.cef
 
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
