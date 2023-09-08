@@ -27,7 +27,7 @@ class AuditLoggerMottakTest {
     }
 
     @Test
-    fun `skal lese aktivitetslogger`() {
+    fun `skal lese aktivitetslogger og lage auditloggmeldinger i CEF format `() {
         val loggMelding = slot<String>()
         every { auditlogger.info(capture(loggMelding)) } returns Unit
         val newMessage =
@@ -41,7 +41,7 @@ class AuditLoggerMottakTest {
             )
         rapid.sendTestMessage(newMessage.toJson())
         loggMelding.isCaptured shouldBe true
-        loggMelding.captured shouldContain "Mottok aktivitetslogg"
-        verify(exactly = 1) { auditlogger.info(any() as String) }
+        loggMelding.captured shouldContain "CEF:0|Vedtaksløsning for dagpenger|"
+        verify(exactly = 1) { auditlogger.info(loggMelding.captured) }
     }
 }

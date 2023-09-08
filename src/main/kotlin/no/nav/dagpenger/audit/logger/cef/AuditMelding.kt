@@ -3,7 +3,6 @@ package no.nav.dagpenger.audit.logger.cef
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.UUID
 
 /**
  * CEF = ArcSight Common Event Format
@@ -22,7 +21,7 @@ internal class AuditMelding(
     private val fødselsnummer: String,
     tidspunkt: LocalDateTime,
     private val eventName: String,
-    private val id: UUID,
+    private val id: String,
     private val begrunnelse: String,
 ) {
 

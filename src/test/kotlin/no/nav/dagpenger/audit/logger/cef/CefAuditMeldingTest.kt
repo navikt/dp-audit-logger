@@ -15,7 +15,7 @@ internal class CefAuditMeldingTest {
         val fødselsnummer = "12345678901"
         val navIdent = "X123456"
         val eventName = "les-behandling"
-        val id = UUID.randomUUID()
+        val id = UUID.randomUUID().toString()
         val begrunnelse = "begrunnelse"
         val auditMelding = AuditMelding(
             navIdent = navIdent,
