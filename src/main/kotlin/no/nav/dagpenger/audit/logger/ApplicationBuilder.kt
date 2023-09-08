@@ -1,7 +1,7 @@
 package no.nav.dagpenger.audit.logger
 
 import mu.KotlinLogging
-import no.nav.dagpenger.audit.logger.cef.CefAuditLoggerRiver
+import no.nav.dagpenger.audit.logger.cef.mottak.AuditLoggerMottak
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.helse.rapids_rivers.RapidsConnection
 
@@ -11,8 +11,9 @@ internal class ApplicationBuilder(config: Map<String, String>) : RapidsConnectio
         RapidApplication.Builder(RapidApplication.RapidApplicationConfig.fromEnv(config)).build()
 
     private val logger = KotlinLogging.logger { }
+    private val auditLogger = KotlinLogging.logger("auditlogger")
     init {
-        CefAuditLoggerRiver(rapidsConnection)
+        AuditLoggerMottak(rapidsConnection, auditLogger)
     }
 
     fun start() {
