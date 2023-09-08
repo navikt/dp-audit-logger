@@ -16,7 +16,7 @@ import java.util.UUID
  *
  *
  */
-internal class CefAuditMelding(
+internal class AuditMelding(
     private val navIdent: String,
     private val app: String,
     private val fødselsnummer: String,
@@ -28,7 +28,7 @@ internal class CefAuditMelding(
 
     private val end = ZonedDateTime.of(tidspunkt, ZoneId.of("Europe/Oslo")).toInstant().toEpochMilli()
 
-    override fun toString(): String {
+    fun formatterTilCef(): String {
         return "CEF:0|Vedtaksløsning for dagpenger|$app|1.0|audit:update|Sporingslogg|INFO|end=$end duid=$fødselsnummer suid=$navIdent request=$eventName sproc=$id msg=$begrunnelse"
     }
 }

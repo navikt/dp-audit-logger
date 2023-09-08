@@ -17,7 +17,7 @@ internal class CefAuditMeldingTest {
         val eventName = "les-behandling"
         val id = UUID.randomUUID()
         val begrunnelse = "begrunnelse"
-        val auditMelding = CefAuditMelding(
+        val auditMelding = AuditMelding(
             navIdent = navIdent,
             app = appNavn,
             fødselsnummer = fødselsnummer,
@@ -28,11 +28,10 @@ internal class CefAuditMeldingTest {
 
         )
 
-        val cefFormat = auditMelding.toString()
-        val deler = cefFormat.split("|")
-
-        println(cefFormat)
         assertSoftly {
+            val cefFormat = auditMelding.formatterTilCef()
+            val deler = cefFormat.split("|")
+
             deler.size shouldBe 8
             deler[0] shouldBe "CEF:0"
             deler[1] shouldBe "Vedtaksløsning for dagpenger"
