@@ -3,10 +3,15 @@ plugins {
     application
 }
 
+repositories {
+    maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
+}
+
 dependencies {
     implementation(libs.rapids.and.rivers)
     implementation(libs.konfig)
     implementation(libs.kotlin.logging)
+    implementation("no.nav.common:audit-log:3.2023.09.13_04.55-a8ff452fbd94")
     implementation("no.nav.dagpenger:aktivitetslogg:20230831.52f628")
 
     testImplementation("io.kotest:kotest-assertions-core-jvm:${libs.versions.kotest.get()}")

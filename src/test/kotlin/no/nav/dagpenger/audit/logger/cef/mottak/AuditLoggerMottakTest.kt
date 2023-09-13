@@ -42,6 +42,7 @@ class AuditLoggerMottakTest {
         rapid.sendTestMessage(newMessage.toJson())
         loggMelding.isCaptured shouldBe true
         loggMelding.captured shouldContain "CEF:0|Vedtaksløsning for dagpenger|"
+        println(loggMelding.captured)
         verify(exactly = 1) { auditlogger.info(loggMelding.captured) }
     }
 }
