@@ -64,9 +64,8 @@ internal class CefAuditLoggerMottakTest {
         rapid.sendTestMessage(aktivitet.toJson())
 
         loggMelding.isCaptured shouldBe true
-        loggMelding.captured shouldContain "CEF:0|Dagpenger|AuditLogger|1.0|audit:access|dagpenger-aktivitetslogg-ukjent|INFO|flexString1=Permit msg=Dette er en audit melding duid=12345678911 flexString1Label=Decision"
+        loggMelding.captured shouldContain "CEF:0|DAGPENGER|AuditLogger|1.0|audit:access|dagpenger-aktivitetslogg-ukjent|INFO|flexString1=Permit msg=Dette er en audit melding duid=12345678911 flexString1Label=Decision"
         verify(exactly = 1) { auditlogger.info(loggMelding.captured) }
-        println(loggMelding.captured)
     }
 
     @Test

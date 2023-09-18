@@ -29,6 +29,7 @@ internal class CefAuditLoggerMottak(
     private companion object {
         private val logger = KotlinLogging.logger { }
         private val sikkerLogger = KotlinLogging.logger("tjenestekall.CefAuditLoggerMottak")
+        private val systemNavn = "DAGPENGER"
     }
 
     init {
@@ -41,36 +42,34 @@ internal class CefAuditLoggerMottak(
         }.register(this)
     }
 
-    override fun onPacket(packet: JsonMessage, context: MessageContext) {
-        withLoggingContext(
-            "meldingsreferanseId" to packet["@id"].asText(),
-        ) {
-            logger.info { "Mottok aktivitetslogg med AUDIT aktivitet" }
-            val cefMessages = packet["aktiviteter"].filter {
-                it["alvorlighetsgrad"].asText() == "AUDIT"
-            }.flatMap { aktivitet ->
-                val melding = aktivitet["melding"].asText()
-                aktivitet["kontekster"]
-                    .filter { it["kontekstType"].asText() == "audit" }
-                    .map { kontekst ->
-                        val kontekstMap = kontekst["kontekstMap"]
-                        CefMessage.builder()
-                            .event(kontekstMap.operasjon())
-                            .applicationName("Dagpenger")
-                            .name(kontekstMap["appName"].asText())
-                            .authorizationDecision(kontekstMap.alvorlighetsgrad())
-                            .sourceUserId(kontekstMap["saksbehandlerNavIdent"].asText())
-                            .destinationUserId(kontekstMap["borgerIdent"].asText())
-                            .timeEnded(packet["@opprettet"].asLocalDateTime().tilEpochMilli())
-                            .extension("msg", melding)
-                            .build()
-                    }
-            }
+    override fun onPacket(packet: JsonMessage, context: MessageContext) = withLoggingContext(
+        "meldingsreferanseId" to packet["@id"].asText(),
+    ) {
+        logger.info { "Mottok aktivitetslogg med AUDIT aktivitet" }
+        val cefMessages = packet["aktiviteter"].filter {
+            it["alvorlighetsgrad"].asText() == "AUDIT"
+        }.flatMap { aktivitet ->
+            val melding = aktivitet["melding"].asText()
+            aktivitet["kontekster"]
+                .filter { it["kontekstType"].asText() == "audit" }
+                .map { kontekst ->
+                    val kontekstMap = kontekst["kontekstMap"]
+                    CefMessage.builder()
+                        .event(kontekstMap.operasjon())
+                        .applicationName(systemNavn)
+                        .name(kontekstMap["appName"].asText())
+                        .authorizationDecision(kontekstMap.alvorlighetsgrad())
+                        .sourceUserId(kontekstMap["saksbehandlerNavIdent"].asText())
+                        .destinationUserId(kontekstMap["borgerIdent"].asText())
+                        .timeEnded(packet["@opprettet"].asLocalDateTime().tilEpochMilli())
+                        .extension("msg", melding)
+                        .build()
+                }
+        }
 
-            cefMessages.forEach {
-                auditlogger.info(it.toString())
-                sikkerLogger.info(it.toString())
-            }
+        cefMessages.forEach {
+            auditlogger.info(it.toString())
+            sikkerLogger.info(it.toString())
         }
     }
 
