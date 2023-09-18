@@ -12,8 +12,9 @@ dependencies {
     implementation(libs.konfig)
     implementation(libs.kotlin.logging)
     implementation("no.nav.common:audit-log:3.2023.09.13_04.55-a8ff452fbd94")
-    implementation("no.nav.dagpenger:aktivitetslogg:20230914.cfb96c")
+    implementation("com.papertrailapp:logback-syslog4j:1.0.0")
 
+    testImplementation("no.nav.dagpenger:aktivitetslogg:20230914.cfb96c")
     testImplementation("io.kotest:kotest-assertions-core-jvm:${libs.versions.kotest.get()}")
     testImplementation(libs.mockk)
 }

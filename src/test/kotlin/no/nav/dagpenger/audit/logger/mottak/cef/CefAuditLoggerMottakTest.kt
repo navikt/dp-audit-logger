@@ -1,4 +1,4 @@
-package no.nav.dagpenger.audit.logger.cef.mottak
+package no.nav.dagpenger.audit.logger.mottak.cef
 
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -17,12 +17,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
-class AuditLoggerMottakTest {
+internal class CefAuditLoggerMottakTest {
     private val auditlogger = mockk<KLogger>(relaxed = true)
     private lateinit var aktivitetslogg: Aktivitetslogg
     private val rapid by lazy {
         TestRapid().apply {
-            AuditLoggerMottak(this, auditlogger)
+            CefAuditLoggerMottak(this, auditlogger)
         }
     }
 
@@ -40,8 +40,8 @@ class AuditLoggerMottakTest {
     fun `skal lese aktivitetslogger og lage auditloggmeldinger i CEF format `() {
         aktivitetslogg.kontekst(
             AuditKontekst(
-                borgerIdent = "eruditi",
-                saksbehandlerNavIdent = "persecuti",
+                borgerIdent = "12345678911",
+                saksbehandlerNavIdent = "X123456",
                 alvorlighetsgrad = AuditKontekst.Alvorlighetsgrad.INFO,
                 operasjon = AuditKontekst.Operasjon.READ,
 
@@ -64,7 +64,7 @@ class AuditLoggerMottakTest {
         rapid.sendTestMessage(aktivitet.toJson())
 
         loggMelding.isCaptured shouldBe true
-        loggMelding.captured shouldContain "CEF:0|Dagpenger|AuditLogger|1.0|audit:access|dagpenger-aktivitetslogg-ukjent|INFO|"
+        loggMelding.captured shouldContain "CEF:0|Dagpenger|AuditLogger|1.0|audit:access|dagpenger-aktivitetslogg-ukjent|INFO|flexString1=Permit msg=Dette er en audit melding duid=12345678911 flexString1Label=Decision"
         verify(exactly = 1) { auditlogger.info(loggMelding.captured) }
         println(loggMelding.captured)
     }
