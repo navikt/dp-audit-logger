@@ -22,6 +22,5 @@ spec:
       memory: 128Mi
   secureLogs:
     enabled: true
-  spec:
-    kafka:
-      pool: {{kafka_pool}}
+  kafka:
+    pool: {{kafka_pool}}
