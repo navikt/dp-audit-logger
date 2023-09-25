@@ -1,7 +1,8 @@
 package no.nav.dagpenger.audit.logger.mottak.cef
 
+import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotBeBlank
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -38,21 +39,25 @@ internal class CefAuditLoggerMottakTest {
 
     @Test
     fun `skal lese aktivitetslogger og lage INFO auditloggmeldinger i CEF format `() {
+        val borgerIdent = "12345678911"
+        val saksbehandlerNavIdent = "X123456"
+        val melding = "infomelding"
         aktivitetslogg.info(
-            "Dette er en audit melding",
-            borgerIdent = "12345678911",
-            saksbehandlerNavIdent = "X123456",
+            melding,
+            borgerIdent = borgerIdent,
+            saksbehandlerNavIdent = saksbehandlerNavIdent,
             operasjon = AuditOperasjon.READ,
         )
 
         val loggMelding = slot<String>()
         every { auditlogger.info(capture(loggMelding)) } returns Unit
+        val meldingsreferanseId = UUID.randomUUID()
         val aktivitet =
             JsonMessage.newMessage(
                 "aktivitetslogg",
                 mapOf(
                     "ident" to "ident",
-                    "hendelse" to mapOf("type" to "bar", "meldingsreferanseId" to UUID.randomUUID()),
+                    "hendelse" to mapOf("type" to "bar", "meldingsreferanseId" to meldingsreferanseId),
                     "aktiviteter" to AktivitetsloggJsonBuilder(aktivitetslogg).asList(),
                 ),
             )
@@ -60,27 +65,52 @@ internal class CefAuditLoggerMottakTest {
         rapid.sendTestMessage(aktivitet.toJson())
 
         loggMelding.isCaptured shouldBe true
-        loggMelding.captured shouldContain "CEF:0|DAGPENGER|AuditLogger|1.0|audit:access|dagpenger-aktivitetslogg-ukjent|INFO|flexString1=Permit msg=Dette er en audit melding duid=12345678911 flexString1Label=Decision"
+        val deler = loggMelding.captured.split("|")
+        assertSoftly {
+            deler.size shouldBe 8
+            deler[0] shouldBe "CEF:0"
+            deler[1] shouldBe "DAGPENGER"
+            deler[2] shouldBe "AuditLogger"
+            deler[3] shouldBe "1.0"
+            deler[4] shouldBe "audit:access"
+            deler[5] shouldBe "dagpenger-aktivitetslogg-ukjent"
+            deler[6] shouldBe "WARN"
+            val extensions = deler[7].split(" ").associate {
+                val par = it.split("=")
+                par[0] to par[1]
+            }
+            extensions["end"].shouldNotBeBlank()
+            extensions["duid"] shouldBe borgerIdent
+            extensions["suid"] shouldBe saksbehandlerNavIdent
+
+            extensions["sproc"] shouldBe meldingsreferanseId.toString()
+            extensions["msg"] shouldBe melding
+        }
+
         verify(exactly = 1) { auditlogger.info(loggMelding.captured) }
     }
 
     @Test
     fun `Skal lese aktivitetslogger og lage WARN auditloggmeldinger i CEF format `() {
+        val borgerIdent = "12345678911"
+        val saksbehandlerNavIdent = "X123456"
+        val melding = "Dette-er-en-audit-melding"
         aktivitetslogg.varsel(
-            "Dette er en audit melding",
-            borgerIdent = "12345678911",
-            saksbehandlerNavIdent = "X123456",
+            melding,
+            borgerIdent = borgerIdent,
+            saksbehandlerNavIdent = saksbehandlerNavIdent,
             operasjon = AuditOperasjon.READ,
         )
 
         val loggMelding = slot<String>()
         every { auditlogger.info(capture(loggMelding)) } returns Unit
+        val meldingsreferanseId = UUID.randomUUID()
         val aktivitet =
             JsonMessage.newMessage(
                 "aktivitetslogg",
                 mapOf(
                     "ident" to "ident",
-                    "hendelse" to mapOf("type" to "bar", "meldingsreferanseId" to UUID.randomUUID()),
+                    "hendelse" to mapOf("type" to "bar", "meldingsreferanseId" to meldingsreferanseId),
                     "aktiviteter" to AktivitetsloggJsonBuilder(aktivitetslogg).asList(),
                 ),
             )
@@ -88,7 +118,27 @@ internal class CefAuditLoggerMottakTest {
         rapid.sendTestMessage(aktivitet.toJson())
 
         loggMelding.isCaptured shouldBe true
-        loggMelding.captured shouldContain "CEF:0|DAGPENGER|AuditLogger|1.0|audit:access|dagpenger-aktivitetslogg-ukjent|WARN|flexString1=Deny msg=Dette er en audit melding duid=12345678911 flexString1Label=Decision"
+        val deler = loggMelding.captured.split("|")
+        assertSoftly {
+            deler.size shouldBe 8
+            deler[0] shouldBe "CEF:0"
+            deler[1] shouldBe "DAGPENGER"
+            deler[2] shouldBe "AuditLogger"
+            deler[3] shouldBe "1.0"
+            deler[4] shouldBe "audit:access"
+            deler[5] shouldBe "dagpenger-aktivitetslogg-ukjent"
+            deler[6] shouldBe "WARN"
+            val extensions = deler[7].split(" ").associate {
+                val par = it.split("=")
+                par[0] to par[1]
+            }
+            extensions["end"].shouldNotBeBlank()
+            extensions["duid"] shouldBe borgerIdent
+            extensions["suid"] shouldBe saksbehandlerNavIdent
+
+            extensions["sproc"] shouldBe meldingsreferanseId.toString()
+            extensions["msg"] shouldBe melding
+        }
         verify(exactly = 1) { auditlogger.info(loggMelding.captured) }
     }
 

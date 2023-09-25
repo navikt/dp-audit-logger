@@ -36,58 +36,64 @@ internal class CefAuditLoggerMottak(
         River(rapidsConnection).validate {
             it.demandValue("@event_name", "aktivitetslogg")
             it.requireKey("@id", "@opprettet", "aktiviteter")
+            it.interestedIn("hendelse")
         }.register(this)
     }
 
-    override fun onPacket(packet: JsonMessage, context: MessageContext) = withLoggingContext(
-        "meldingsreferanseId" to packet["@id"].asText(),
-    ) {
-        val cefMessages = packet["aktiviteter"].flatMap { aktivitet ->
-            val melding = aktivitet["melding"].asText()
-            aktivitet["kontekster"]
-                .filter { it["kontekstType"].asText() == "audit" }
-                .map { kontekst ->
-                    val kontekstMap = kontekst["kontekstMap"]
-                    CefMessage.builder()
-                        .event(kontekstMap.operasjon())
-                        .applicationName(systemNavn)
-                        .name(kontekstMap["appName"].asText())
-                        .authorizationDecision(kontekstMap.alvorlighetsgrad())
-                        .sourceUserId(kontekstMap["saksbehandlerNavIdent"].asText())
-                        .destinationUserId(kontekstMap["borgerIdent"].asText())
-                        .timeEnded(packet["@opprettet"].asLocalDateTime().tilEpochMilli())
-                        .extension("msg", melding)
-                        .build()
-                }
-        }
+    override fun onPacket(packet: JsonMessage, context: MessageContext) {
+        val meldingsreferanseId = packet["hendelse"]["meldingsreferanseId"]?.asText() ?: packet["@id"].asText()
 
-        if (cefMessages.isNotEmpty()) {
-            logger.info { "Mottok aktivitetslogg med AUDIT aktivitet" }
-            cefMessages.forEach {
-                auditlogger.info(it.toString())
-                sikkerLogger.info(it.toString())
+        withLoggingContext(
+            "meldingsreferanseId" to meldingsreferanseId,
+        ) {
+            val cefMessages = packet["aktiviteter"].flatMap { aktivitet ->
+                val melding = aktivitet["melding"].asText()
+                aktivitet["kontekster"]
+                    .filter { it["kontekstType"].asText() == "audit" }
+                    .map { kontekst ->
+                        val kontekstMap = kontekst["kontekstMap"]
+                        CefMessage.builder()
+                            .event(kontekstMap.operasjon())
+                            .applicationName(systemNavn)
+                            .name(kontekstMap["appName"].asText())
+                            .authorizationDecision(kontekstMap.alvorlighetsgrad())
+                            .sourceUserId(kontekstMap["saksbehandlerNavIdent"].asText())
+                            .destinationUserId(kontekstMap["borgerIdent"].asText())
+                            .timeEnded(packet["@opprettet"].asLocalDateTime().tilEpochMilli())
+                            .callId(meldingsreferanseId)
+                            .extension("msg", melding)
+                            .build()
+                    }
+            }
+
+            if (cefMessages.isNotEmpty()) {
+                logger.info { "Mottok aktivitetslogg med AUDIT aktivitet" }
+                cefMessages.forEach {
+                    auditlogger.info(it.toString())
+                    sikkerLogger.info(it.toString())
+                }
             }
         }
     }
+}
 
-    private fun LocalDateTime.tilEpochMilli() =
-        ZonedDateTime.of(this, ZoneId.of("Europe/Oslo")).toInstant().toEpochMilli()
+private fun LocalDateTime.tilEpochMilli() =
+    ZonedDateTime.of(this, ZoneId.of("Europe/Oslo")).toInstant().toEpochMilli()
 
-    private fun JsonNode.alvorlighetsgrad(): AuthorizationDecision {
-        return when (this["alvorlighetsgrad"].asText()) {
-            "INFO" -> AuthorizationDecision.PERMIT
-            "WARN" -> AuthorizationDecision.DENY
-            else -> throw IllegalArgumentException("Kjenner ikke alvorlighetsgrad ${this["alvorlighetsgrad"].asText()} ")
-        }
+private fun JsonNode.alvorlighetsgrad(): AuthorizationDecision {
+    return when (this["alvorlighetsgrad"].asText()) {
+        "INFO" -> AuthorizationDecision.PERMIT
+        "WARN" -> AuthorizationDecision.DENY
+        else -> throw IllegalArgumentException("Kjenner ikke alvorlighetsgrad ${this["alvorlighetsgrad"].asText()} ")
     }
+}
 
-    private fun JsonNode.operasjon(): CefMessageEvent {
-        return when (this["operasjon"].asText()) {
-            "READ" -> CefMessageEvent.ACCESS
-            "CREATE" -> CefMessageEvent.CREATE
-            "UPDATE" -> CefMessageEvent.UPDATE
-            "DELETE" -> CefMessageEvent.DELETE
-            else -> throw IllegalArgumentException("Kjenner ikke operasjon ${this["operasjon"].asText()} ")
-        }
+private fun JsonNode.operasjon(): CefMessageEvent {
+    return when (this["operasjon"].asText()) {
+        "READ" -> CefMessageEvent.ACCESS
+        "CREATE" -> CefMessageEvent.CREATE
+        "UPDATE" -> CefMessageEvent.UPDATE
+        "DELETE" -> CefMessageEvent.DELETE
+        else -> throw IllegalArgumentException("Kjenner ikke operasjon ${this["operasjon"].asText()} ")
     }
 }
