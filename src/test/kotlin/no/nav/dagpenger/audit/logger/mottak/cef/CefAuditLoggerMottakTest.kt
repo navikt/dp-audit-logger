@@ -37,7 +37,7 @@ internal class CefAuditLoggerMottakTest {
     }
 
     @Test
-    fun `skal lese aktivitetslogger og lage auditloggmeldinger i CEF format `() {
+    fun `skal lese aktivitetslogger og lage INFO auditloggmeldinger i CEF format `() {
         aktivitetslogg.info(
             "Dette er en audit melding",
             borgerIdent = "12345678911",
@@ -61,6 +61,34 @@ internal class CefAuditLoggerMottakTest {
 
         loggMelding.isCaptured shouldBe true
         loggMelding.captured shouldContain "CEF:0|DAGPENGER|AuditLogger|1.0|audit:access|dagpenger-aktivitetslogg-ukjent|INFO|flexString1=Permit msg=Dette er en audit melding duid=12345678911 flexString1Label=Decision"
+        verify(exactly = 1) { auditlogger.info(loggMelding.captured) }
+    }
+
+    @Test
+    fun `Skal lese aktivitetslogger og lage WARN auditloggmeldinger i CEF format `() {
+        aktivitetslogg.varsel(
+            "Dette er en audit melding",
+            borgerIdent = "12345678911",
+            saksbehandlerNavIdent = "X123456",
+            operasjon = AuditOperasjon.READ,
+        )
+
+        val loggMelding = slot<String>()
+        every { auditlogger.info(capture(loggMelding)) } returns Unit
+        val aktivitet =
+            JsonMessage.newMessage(
+                "aktivitetslogg",
+                mapOf(
+                    "ident" to "ident",
+                    "hendelse" to mapOf("type" to "bar", "meldingsreferanseId" to UUID.randomUUID()),
+                    "aktiviteter" to AktivitetsloggJsonBuilder(aktivitetslogg).asList(),
+                ),
+            )
+
+        rapid.sendTestMessage(aktivitet.toJson())
+
+        loggMelding.isCaptured shouldBe true
+        loggMelding.captured shouldContain "CEF:0|DAGPENGER|AuditLogger|1.0|audit:access|dagpenger-aktivitetslogg-ukjent|WARN|flexString1=Deny msg=Dette er en audit melding duid=12345678911 flexString1Label=Decision"
         verify(exactly = 1) { auditlogger.info(loggMelding.captured) }
     }
 
