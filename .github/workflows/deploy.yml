@@ -1,6 +1,9 @@
-name: Build and deploy
+name: Deploy
 
-on: [push]
+on:
+  push:
+    branches-ignore:
+      - 'dependabot/**'
 
 jobs:
   build:
