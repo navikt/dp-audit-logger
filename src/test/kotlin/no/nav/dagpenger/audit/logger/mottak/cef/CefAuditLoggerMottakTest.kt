@@ -74,7 +74,7 @@ internal class CefAuditLoggerMottakTest {
             deler[3] shouldBe "1.0"
             deler[4] shouldBe "audit:access"
             deler[5] shouldBe "dagpenger-aktivitetslogg-ukjent"
-            deler[6] shouldBe "WARN"
+            deler[6] shouldBe "INFO"
             val extensions = deler[7].split(" ").associate {
                 val par = it.split("=")
                 par[0] to par[1]
