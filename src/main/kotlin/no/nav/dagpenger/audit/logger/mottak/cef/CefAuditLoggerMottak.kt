@@ -35,20 +35,14 @@ internal class CefAuditLoggerMottak(
     init {
         River(rapidsConnection).validate {
             it.demandValue("@event_name", "aktivitetslogg")
-            it.requireKey("@id", "@opprettet")
-            it.requireArray("aktiviteter") {
-                demandValue("alvorlighetsgrad", "AUDIT")
-            }
+            it.requireKey("@id", "@opprettet", "aktiviteter")
         }.register(this)
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) = withLoggingContext(
         "meldingsreferanseId" to packet["@id"].asText(),
     ) {
-        logger.info { "Mottok aktivitetslogg med AUDIT aktivitet" }
-        val cefMessages = packet["aktiviteter"].filter {
-            it["alvorlighetsgrad"].asText() == "AUDIT"
-        }.flatMap { aktivitet ->
+        val cefMessages = packet["aktiviteter"].flatMap { aktivitet ->
             val melding = aktivitet["melding"].asText()
             aktivitet["kontekster"]
                 .filter { it["kontekstType"].asText() == "audit" }
@@ -67,9 +61,12 @@ internal class CefAuditLoggerMottak(
                 }
         }
 
-        cefMessages.forEach {
-            auditlogger.info(it.toString())
-            sikkerLogger.info(it.toString())
+        if (cefMessages.isNotEmpty()) {
+            logger.info { "Mottok aktivitetslogg med AUDIT aktivitet" }
+            cefMessages.forEach {
+                auditlogger.info(it.toString())
+                sikkerLogger.info(it.toString())
+            }
         }
     }
 

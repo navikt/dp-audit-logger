@@ -8,7 +8,7 @@ import io.mockk.slot
 import io.mockk.verify
 import mu.KLogger
 import no.nav.dagpenger.aktivitetslogg.Aktivitetslogg
-import no.nav.dagpenger.aktivitetslogg.AuditKontekst
+import no.nav.dagpenger.aktivitetslogg.AuditOperasjon
 import no.nav.dagpenger.aktivitetslogg.serde.AktivitetsloggJsonBuilder
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
@@ -38,16 +38,12 @@ internal class CefAuditLoggerMottakTest {
 
     @Test
     fun `skal lese aktivitetslogger og lage auditloggmeldinger i CEF format `() {
-        aktivitetslogg.kontekst(
-            AuditKontekst(
-                borgerIdent = "12345678911",
-                saksbehandlerNavIdent = "X123456",
-                alvorlighetsgrad = AuditKontekst.Alvorlighetsgrad.INFO,
-                operasjon = AuditKontekst.Operasjon.READ,
-
-            ),
+        aktivitetslogg.info(
+            "Dette er en audit melding",
+            borgerIdent = "12345678911",
+            saksbehandlerNavIdent = "X123456",
+            operasjon = AuditOperasjon.READ,
         )
-        aktivitetslogg.audit("Dette er en audit melding")
 
         val loggMelding = slot<String>()
         every { auditlogger.info(capture(loggMelding)) } returns Unit
