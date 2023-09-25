@@ -6,11 +6,9 @@ import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.helse.rapids_rivers.RapidsConnection
 
 internal class ApplicationBuilder(config: Map<String, String>) : RapidsConnection.StatusListener {
-
     private val rapidsConnection =
         RapidApplication.Builder(RapidApplication.RapidApplicationConfig.fromEnv(config)).build()
 
-    private val logger = KotlinLogging.logger { }
     init {
         CefAuditLoggerMottak(rapidsConnection)
     }
@@ -21,5 +19,9 @@ internal class ApplicationBuilder(config: Map<String, String>) : RapidsConnectio
 
     override fun onReady(rapidsConnection: RapidsConnection) {
         logger.info { "Startet" }
+    }
+
+    private companion object {
+        private val logger = KotlinLogging.logger { }
     }
 }

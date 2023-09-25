@@ -22,7 +22,7 @@ import java.time.ZonedDateTime
  */
 internal class CefAuditLoggerMottak(
     rapidsConnection: RapidsConnection,
-    private val auditlogger: KLogger = KotlinLogging.logger("auditlogger"),
+    private val auditlogger: KLogger = KotlinLogging.logger("auditLogger"),
 ) :
     River.PacketListener {
 
