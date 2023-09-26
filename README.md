@@ -1,6 +1,6 @@
 # dp-audit-logger
 
-Har ansvar å ta i mot [aktivitetslogger](https://github.com/navikt/dp-aktivitetslogg/tree/main/aktivitetslogg) fra og
+Har ansvar å ta i mot [aktivitetslogger](https://github.com/navikt/dp-aktivitetslogg/tree/main/aktivitetslogg) fra applikasjoner og
 sende auditkontekster fra aktiviteter som ArcSight Common Event Format (CEF) i henhold
 til https://sikkerhet.nav.no/docs/sikker-utvikling/auditlogging
 
