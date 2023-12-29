@@ -75,10 +75,11 @@ internal class CefAuditLoggerMottakTest {
             deler[4] shouldBe "audit:access"
             deler[5] shouldBe "dagpenger-aktivitetslogg-ukjent"
             deler[6] shouldBe "INFO"
-            val extensions = deler[7].split(" ").associate {
-                val par = it.split("=")
-                par[0] to par[1]
-            }
+            val extensions =
+                deler[7].split(" ").associate {
+                    val par = it.split("=")
+                    par[0] to par[1]
+                }
             extensions["end"].shouldNotBeBlank()
             extensions["duid"] shouldBe borgerIdent
             extensions["suid"] shouldBe saksbehandlerNavIdent
@@ -128,10 +129,11 @@ internal class CefAuditLoggerMottakTest {
             deler[4] shouldBe "audit:access"
             deler[5] shouldBe "dagpenger-aktivitetslogg-ukjent"
             deler[6] shouldBe "WARN"
-            val extensions = deler[7].split(" ").associate {
-                val par = it.split("=")
-                par[0] to par[1]
-            }
+            val extensions =
+                deler[7].split(" ").associate {
+                    val par = it.split("=")
+                    par[0] to par[1]
+                }
             extensions["end"].shouldNotBeBlank()
             extensions["duid"] shouldBe borgerIdent
             extensions["suid"] shouldBe saksbehandlerNavIdent
