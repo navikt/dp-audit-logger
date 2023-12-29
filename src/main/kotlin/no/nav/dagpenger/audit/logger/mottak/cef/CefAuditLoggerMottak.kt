@@ -25,7 +25,6 @@ internal class CefAuditLoggerMottak(
     private val auditlogger: KLogger = KotlinLogging.logger("auditLogger"),
 ) :
     River.PacketListener {
-
     private companion object {
         private val logger = KotlinLogging.logger { }
         private val sikkerLogger = KotlinLogging.logger("tjenestekall.CefAuditLoggerMottak")
@@ -40,31 +39,35 @@ internal class CefAuditLoggerMottak(
         }.register(this)
     }
 
-    override fun onPacket(packet: JsonMessage, context: MessageContext) {
+    override fun onPacket(
+        packet: JsonMessage,
+        context: MessageContext,
+    ) {
         val meldingsreferanseId = packet["hendelse"]["meldingsreferanseId"]?.asText() ?: packet["@id"].asText()
 
         withLoggingContext(
             "meldingsreferanseId" to meldingsreferanseId,
         ) {
-            val cefMessages = packet["aktiviteter"].flatMap { aktivitet ->
-                val melding = aktivitet["melding"].asText()
-                aktivitet["kontekster"]
-                    .filter { it["kontekstType"].asText() == "audit" }
-                    .map { kontekst ->
-                        val kontekstMap = kontekst["kontekstMap"]
-                        CefMessage.builder()
-                            .event(kontekstMap.operasjon())
-                            .applicationName(systemNavn)
-                            .name(kontekstMap["appName"].asText())
-                            .authorizationDecision(kontekstMap.alvorlighetsgrad())
-                            .sourceUserId(kontekstMap["saksbehandlerNavIdent"].asText())
-                            .destinationUserId(kontekstMap["borgerIdent"].asText())
-                            .timeEnded(packet["@opprettet"].asLocalDateTime().tilEpochMilli())
-                            .callId(meldingsreferanseId)
-                            .extension("msg", melding)
-                            .build()
-                    }
-            }
+            val cefMessages =
+                packet["aktiviteter"].flatMap { aktivitet ->
+                    val melding = aktivitet["melding"].asText()
+                    aktivitet["kontekster"]
+                        .filter { it["kontekstType"].asText() == "audit" }
+                        .map { kontekst ->
+                            val kontekstMap = kontekst["kontekstMap"]
+                            CefMessage.builder()
+                                .event(kontekstMap.operasjon())
+                                .applicationName(systemNavn)
+                                .name(kontekstMap["appName"].asText())
+                                .authorizationDecision(kontekstMap.alvorlighetsgrad())
+                                .sourceUserId(kontekstMap["saksbehandlerNavIdent"].asText())
+                                .destinationUserId(kontekstMap["borgerIdent"].asText())
+                                .timeEnded(packet["@opprettet"].asLocalDateTime().tilEpochMilli())
+                                .callId(meldingsreferanseId)
+                                .extension("msg", melding)
+                                .build()
+                        }
+                }
 
             if (cefMessages.isNotEmpty()) {
                 logger.info { "Mottok aktivitetslogg med AUDIT aktivitet" }
@@ -77,8 +80,7 @@ internal class CefAuditLoggerMottak(
     }
 }
 
-private fun LocalDateTime.tilEpochMilli() =
-    ZonedDateTime.of(this, ZoneId.of("Europe/Oslo")).toInstant().toEpochMilli()
+private fun LocalDateTime.tilEpochMilli() = ZonedDateTime.of(this, ZoneId.of("Europe/Oslo")).toInstant().toEpochMilli()
 
 private fun JsonNode.alvorlighetsgrad(): AuthorizationDecision {
     return when (this["alvorlighetsgrad"].asText()) {
