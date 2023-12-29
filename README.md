@@ -29,8 +29,8 @@ Arkitekturskisser
 
 ```mermaid
 graph TD
-    A[dp-app] -->|Kafka| B[dp-audit-logger]
-    B -->|Kafka| C[CEF]
+    A[dp-app] -->|Kafka Rapid| B[dp-audit-logger]
+    B -->|Logger| C[CEF]
 ```
 
 ## Komme i gang
