@@ -1,5 +1,8 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     id("common")
+    id("com.github.johnrengelman.shadow") version "8.1.1"
     application
 }
 
@@ -21,4 +24,8 @@ dependencies {
 
 application {
     mainClass.set("no.nav.dagpenger.audit.logger.AppKt")
+}
+
+tasks.withType<ShadowJar> {
+    mergeServiceFiles()
 }
