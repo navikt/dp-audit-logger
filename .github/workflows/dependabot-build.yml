@@ -6,7 +6,6 @@ on:
       - 'dependabot/**'
 
 jobs:
-  # Denne matches mot required checks som trigger automerge av Dependabot PRs. Endrer du her må du også endre i https://github.com/navikt/dp-auth/settings/branches
   test:
     name: test
     runs-on: ubuntu-latest
@@ -17,6 +16,9 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - uses: gradle/gradle-build-action@v3.5.0
+      - uses: gradle/gradle-build-action@v3
+        env:
+          ORG_GRADLE_PROJECT_githubUser: x-access-token
+          ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
         with:
           arguments: --configuration-cache test
