@@ -17,6 +17,7 @@ dependencies {
     implementation("no.nav.common:audit-log:3.2024.01.24_10.14-f70bae69bd65")
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
 
+    testImplementation(libs.rapids.and.rivers.test)
     testImplementation(libs.dp.aktivitetslogg)
     testImplementation("io.kotest:kotest-assertions-core-jvm:${libs.versions.kotest.get()}")
     testImplementation(libs.mockk)

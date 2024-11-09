@@ -1,13 +1,12 @@
 package no.nav.dagpenger.audit.logger
 
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import mu.KotlinLogging
 import no.nav.dagpenger.audit.logger.mottak.cef.CefAuditLoggerMottak
 import no.nav.helse.rapids_rivers.RapidApplication
-import no.nav.helse.rapids_rivers.RapidsConnection
 
 internal class ApplicationBuilder(config: Map<String, String>) : RapidsConnection.StatusListener {
-    private val rapidsConnection =
-        RapidApplication.Builder(RapidApplication.RapidApplicationConfig.fromEnv(config)).build()
+    private val rapidsConnection = RapidApplication.create(config)
 
     init {
         CefAuditLoggerMottak(rapidsConnection)
