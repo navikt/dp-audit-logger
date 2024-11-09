@@ -18,9 +18,12 @@ spec:
     limits:
       memory: 512Mi
     requests:
-      cpu: 80m
-      memory: 128Mi
+      cpu: 20m
+      memory: 384Mi
   secureLogs:
     enabled: true
   kafka:
     pool: {{kafka_pool}}
+  env:
+    - name: JDK_JAVA_OPTIONS
+      value: -XX:+UseParallelGC -XX:MaxRAMPercentage=35.0 -XX:ActiveProcessorCount=4
