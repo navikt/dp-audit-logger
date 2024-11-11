@@ -5,7 +5,7 @@ RUN mkdir -p /opt/cprof && \
   | tar xzv -C /opt/cprof
 
 # FROM cgr.dev/chainguard/jre:latest
-FROM openjdk:21-jdk-slim
+FROM openjdk:24-jdk-slim
 
 ENV LANG='nb_NO.UTF-8' LANGUAGE='nb_NO:nb' LC_ALL='nb:NO.UTF-8' TZ="Europe/Oslo"
 
