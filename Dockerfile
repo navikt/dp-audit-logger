@@ -1,4 +1,4 @@
-FROM alpine:3.12 as builder
+FROM alpine:3.20 as builder
 
 RUN mkdir -p /opt/cprof && \
   wget -q -O- https://storage.googleapis.com/cloud-profiler/java/latest/profiler_java_agent.tar.gz \
