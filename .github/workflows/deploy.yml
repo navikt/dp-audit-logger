@@ -38,8 +38,7 @@ jobs:
     needs: [ build ]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
+    environment: dev-gcp
     steps:
       - uses: actions/checkout@v4
       - uses: nais/deploy/actions/deploy@v2
@@ -55,8 +54,7 @@ jobs:
     needs: [ build ]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
+    environment: prod-gcp
     steps:
       - uses: actions/checkout@v4
       - uses: nais/deploy/actions/deploy@v2
