@@ -5,7 +5,9 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDateTime
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
+import io.micrometer.core.instrument.MeterRegistry
 import mu.KLogger
 import mu.KotlinLogging
 import mu.withLoggingContext
@@ -33,7 +35,7 @@ internal class CefAuditLoggerMottak(
 
     init {
         River(rapidsConnection).validate {
-            it.demandValue("@event_name", "aktivitetslogg")
+            it.requireValue("@event_name", "aktivitetslogg")
             it.requireKey("@id", "@opprettet", "aktiviteter")
             it.interestedIn("hendelse")
         }.register(this)
@@ -42,6 +44,8 @@ internal class CefAuditLoggerMottak(
     override fun onPacket(
         packet: JsonMessage,
         context: MessageContext,
+        metadata: MessageMetadata,
+        meterRegistry: MeterRegistry,
     ) {
         val meldingsreferanseId = packet["hendelse"]["meldingsreferanseId"]?.asText() ?: packet["@id"].asText()
 
