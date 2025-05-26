@@ -6,7 +6,7 @@ metadata:
   labels:
     team: teamdagpenger
 spec:
-  image: {{image}}
+  image: "{{image}}"
   port: 8080
   prometheus:
     enabled: true
@@ -23,7 +23,7 @@ spec:
   secureLogs:
     enabled: true
   kafka:
-    pool: {{kafka_pool}}
+    pool: "{{kafka_pool}}"
   env:
     - name: JDK_JAVA_OPTIONS
       value: -XX:+UseParallelGC -XX:MaxRAMPercentage=25.0 -XX:ActiveProcessorCount=4
