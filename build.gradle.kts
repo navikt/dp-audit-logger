@@ -14,7 +14,7 @@ dependencies {
     implementation(libs.rapids.and.rivers)
     implementation(libs.konfig)
     implementation(libs.kotlin.logging)
-    implementation("no.nav.common:audit-log:3.2025.03.25_13.00-69496eec5820")
+    implementation("no.nav.common:audit-log:3.2025.05.30_07.00-bef2e550fb22")
     implementation("com.papertrailapp:logback-syslog4j:1.0.0")
 
     testImplementation(libs.rapids.and.rivers.test)
