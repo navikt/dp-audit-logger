@@ -15,8 +15,7 @@ dependencies {
     implementation(libs.konfig)
     implementation(libs.kotlin.logging)
     implementation("no.nav.common:audit-log:3.2025.05.30_07.00-bef2e550fb22")
-    implementation("com.papertrailapp:logback-syslog4j:1.0.0")
-
+    implementation("net.logstash.logback:logstash-logback-encoder:8.1")
     testImplementation(libs.rapids.and.rivers.test)
     testImplementation(libs.dp.aktivitetslogg)
     testImplementation("io.kotest:kotest-assertions-core-jvm:${libs.versions.kotest.get()}")
