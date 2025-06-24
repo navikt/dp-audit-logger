@@ -14,7 +14,7 @@ dependencies {
     implementation(libs.rapids.and.rivers)
     implementation(libs.konfig)
     implementation(libs.kotlin.logging)
-    implementation("no.nav.common:audit-log:3.2025.05.30_07.00-bef2e550fb22")
+    implementation("no.nav.common:audit-log:3.2025.06.23_14.50-3af3985d8555")
     implementation("net.logstash.logback:logstash-logback-encoder:8.1")
     testImplementation(libs.rapids.and.rivers.test)
     testImplementation(libs.dp.aktivitetslogg)
