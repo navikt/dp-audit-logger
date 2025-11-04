@@ -7,10 +7,9 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDateTime
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.oshai.kotlinlogging.withLoggingContext
 import io.micrometer.core.instrument.MeterRegistry
-import mu.KLogger
-import mu.KotlinLogging
-import mu.withLoggingContext
 import no.nav.common.audit_log.cef.AuthorizationDecision
 import no.nav.common.audit_log.cef.CefMessage
 import no.nav.common.audit_log.cef.CefMessageEvent
@@ -24,21 +23,20 @@ import java.time.ZonedDateTime
  */
 internal class CefAuditLoggerMottak(
     rapidsConnection: RapidsConnection,
-    private val auditlogger: KLogger = KotlinLogging.logger("auditLogger"),
-) :
-    River.PacketListener {
+    private val auditlogger: CefAuditLogger = CefAuditLogger(),
+) : River.PacketListener {
     private companion object {
         private val logger = KotlinLogging.logger { }
-        private val sikkerLogger = KotlinLogging.logger("tjenestekall.CefAuditLoggerMottak")
         private val systemNavn = "DAGPENGER"
     }
 
     init {
-        River(rapidsConnection).validate {
-            it.requireValue("@event_name", "aktivitetslogg")
-            it.requireKey("@id", "@opprettet", "aktiviteter")
-            it.interestedIn("hendelse")
-        }.register(this)
+        River(rapidsConnection)
+            .validate {
+                it.requireValue("@event_name", "aktivitetslogg")
+                it.requireKey("@id", "@opprettet", "aktiviteter")
+                it.interestedIn("hendelse")
+            }.register(this)
     }
 
     override fun onPacket(
@@ -59,7 +57,8 @@ internal class CefAuditLoggerMottak(
                         .filter { it["kontekstType"].asText() == "audit" }
                         .map { kontekst ->
                             val kontekstMap = kontekst["kontekstMap"]
-                            CefMessage.builder()
+                            CefMessage
+                                .builder()
                                 .event(kontekstMap.operasjon())
                                 .applicationName(systemNavn)
                                 .name(kontekstMap["appName"].asText())
@@ -76,8 +75,7 @@ internal class CefAuditLoggerMottak(
             if (cefMessages.isNotEmpty()) {
                 logger.info { "Mottok aktivitetslogg med AUDIT aktivitet" }
                 cefMessages.forEach {
-                    auditlogger.info(it.toString())
-                    sikkerLogger.info(it.toString())
+                    auditlogger.logEvent(it.toString())
                 }
             }
         }
@@ -86,20 +84,18 @@ internal class CefAuditLoggerMottak(
 
 private fun LocalDateTime.tilEpochMilli() = ZonedDateTime.of(this, ZoneId.of("Europe/Oslo")).toInstant().toEpochMilli()
 
-private fun JsonNode.alvorlighetsgrad(): AuthorizationDecision {
-    return when (this["alvorlighetsgrad"].asText()) {
+private fun JsonNode.alvorlighetsgrad(): AuthorizationDecision =
+    when (this["alvorlighetsgrad"].asText()) {
         "INFO" -> AuthorizationDecision.PERMIT
         "WARN" -> AuthorizationDecision.DENY
         else -> throw IllegalArgumentException("Kjenner ikke alvorlighetsgrad ${this["alvorlighetsgrad"].asText()} ")
     }
-}
 
-private fun JsonNode.operasjon(): CefMessageEvent {
-    return when (this["operasjon"].asText()) {
+private fun JsonNode.operasjon(): CefMessageEvent =
+    when (this["operasjon"].asText()) {
         "READ" -> CefMessageEvent.ACCESS
         "CREATE" -> CefMessageEvent.CREATE
         "UPDATE" -> CefMessageEvent.UPDATE
         "DELETE" -> CefMessageEvent.DELETE
         else -> throw IllegalArgumentException("Kjenner ikke operasjon ${this["operasjon"].asText()} ")
     }
-}
