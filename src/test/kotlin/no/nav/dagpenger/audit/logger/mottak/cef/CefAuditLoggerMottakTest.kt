@@ -9,7 +9,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import mu.KLogger
 import no.nav.dagpenger.aktivitetslogg.Aktivitetslogg
 import no.nav.dagpenger.aktivitetslogg.AuditOperasjon
 import no.nav.dagpenger.aktivitetslogg.serde.AktivitetsloggJsonBuilder
@@ -19,7 +18,7 @@ import org.junit.jupiter.api.Test
 import java.util.UUID
 
 internal class CefAuditLoggerMottakTest {
-    private val auditlogger = mockk<KLogger>(relaxed = true)
+    private val auditlogger = mockk<CefAuditLogger>(relaxed = true)
     private lateinit var aktivitetslogg: Aktivitetslogg
     private val rapid by lazy {
         TestRapid().apply {
@@ -50,7 +49,7 @@ internal class CefAuditLoggerMottakTest {
         )
 
         val loggMelding = slot<String>()
-        every { auditlogger.info(capture(loggMelding)) } returns Unit
+        every { auditlogger.logEvent(capture(loggMelding)) } returns Unit
         val meldingsreferanseId = UUID.randomUUID()
         val aktivitet =
             JsonMessage.newMessage(
@@ -88,7 +87,7 @@ internal class CefAuditLoggerMottakTest {
             extensions["msg"] shouldBe melding
         }
 
-        verify(exactly = 1) { auditlogger.info(loggMelding.captured) }
+        verify(exactly = 1) { auditlogger.logEvent(loggMelding.captured) }
     }
 
     @Test
@@ -104,7 +103,7 @@ internal class CefAuditLoggerMottakTest {
         )
 
         val loggMelding = slot<String>()
-        every { auditlogger.info(capture(loggMelding)) } returns Unit
+        every { auditlogger.logEvent(capture(loggMelding)) } returns Unit
         val meldingsreferanseId = UUID.randomUUID()
         val aktivitet =
             JsonMessage.newMessage(
@@ -141,7 +140,7 @@ internal class CefAuditLoggerMottakTest {
             extensions["sproc"] shouldBe meldingsreferanseId.toString()
             extensions["msg"] shouldBe melding
         }
-        verify(exactly = 1) { auditlogger.info(loggMelding.captured) }
+        verify(exactly = 1) { auditlogger.logEvent(loggMelding.captured) }
     }
 
     @Test
@@ -157,6 +156,6 @@ internal class CefAuditLoggerMottakTest {
             )
 
         rapid.sendTestMessage(aktivitet.toJson())
-        verify(exactly = 0) { auditlogger.info(any() as String) }
+        verify(exactly = 0) { auditlogger.logEvent(any() as String) }
     }
 }
